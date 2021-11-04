@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net"
 )
@@ -25,13 +26,14 @@ func main() {
 func handleConn(conn net.Conn) {
 	defer conn.Close()
 	for {
-		buf := make([]byte, 10)
-		log.Println("start to read from conn")
+		buf := make([]byte, 1024)
 		n, err := conn.Read(buf)
+		fmt.Println(buf[:n])
 		if err != nil {
 			log.Println("conn read error:", err)
 			return
 		}
 		log.Printf("read %d bytes, content is %v\n", n, string(buf[:n]))
+		conn.Write(buf[:n])
 	}
 }
