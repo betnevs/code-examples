@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/spf13/pflag"
+
 	"github.com/spf13/cobra"
 )
 
@@ -18,5 +20,6 @@ var addCmd = &cobra.Command{
 }
 
 func init() {
+	pflag.Args()
 	rootCmd.AddCommand(addCmd)
 }
