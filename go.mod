@@ -14,9 +14,10 @@ require (
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.9.0
+	github.com/tal-tech/go-zero v1.2.4
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/zap v1.19.1
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	golang.org/x/sys v0.0.0-20211103235746-7861aae1554b // indirect
 	google.golang.org/grpc v1.42.0
+	google.golang.org/protobuf v1.27.1
 )

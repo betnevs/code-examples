@@ -1,8 +1,8 @@
 package geecache
 
 import (
-	"code-examples/geecache/singleflight"
 	"fmt"
+	"github.com/betNevS/code-examples/geecache/singleflight"
 	"log"
 	"sync"
 )
