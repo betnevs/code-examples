@@ -3,19 +3,20 @@ package main
 import (
 	"fmt"
 	"runtime"
-	"strings"
-	"time"
 )
 
 func main() {
-	a := "aa bb cc"
-	fmt.Println(strings.Fields(a))
-	go func() {
-		time.Sleep(time.Second)
-	}()
 	Foo()
+}
 
-	time.Sleep(2 * time.Second)
+type ss struct {
+	a int
+}
+
+func newtry() ss {
+	return ss{
+		a: trace2(),
+	}
 }
 
 func Foo() {
@@ -25,7 +26,7 @@ func Foo() {
 
 func Bar() {
 	fmt.Printf("I am %s, %s call me?\n", printMyName(), printCallerName())
-	DumpStacks()
+	trace()
 }
 
 func printMyName() string {
@@ -49,7 +50,7 @@ func trace() {
 	}
 }
 
-func trace2() {
+func trace2() int {
 	pc := make([]uintptr, 10)
 	n := runtime.Callers(0, pc)
 	fmt.Println("n:", n, "pc:", pc)
@@ -61,6 +62,7 @@ func trace2() {
 			break
 		}
 	}
+	return 1
 }
 
 func DumpStacks() {
