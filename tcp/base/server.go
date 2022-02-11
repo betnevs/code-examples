@@ -3,11 +3,15 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/betNevS/code-examples/tcp/base/proto"
 	"io"
 	"net"
-
-	"github.com/betNevS/code-examples/tcp/base/proto"
 )
+
+type Person struct {
+	name string
+	age  int
+}
 
 func main() {
 	lis, err := net.Listen("tcp", ":8000")
