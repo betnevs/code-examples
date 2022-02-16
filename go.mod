@@ -6,6 +6,7 @@ require (
 	github.com/bketelsen/crypt v0.0.4 // indirect
 	github.com/gin-gonic/gin v1.7.7
 	github.com/golang/protobuf v1.5.2
+	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/json-iterator/go v1.1.12
 	github.com/lucasepe/codename v0.2.0
 	github.com/marmotedu/errors v1.0.2

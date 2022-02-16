@@ -1,12 +1,17 @@
 package main
 
 import (
+	"bytes"
+	"encoding/binary"
 	"fmt"
 	"math"
 )
 
 func main() {
-	fmt.Println(math.MaxInt64)
+	b := &bytes.Buffer{}
+	var t int32 = 10000
+	err := binary.Write(b, binary.BigEndian, &t)
+	fmt.Println(err, b.Bytes())
 }
 
 func strToInt(str string) int {
