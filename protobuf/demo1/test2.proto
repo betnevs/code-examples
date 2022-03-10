@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+import "test.proto";
+
+option go_package = "code-examples/protobuf/demo1/testpb";
+
+message Reply {
+    test.SearchRequest sr = 1;
+}

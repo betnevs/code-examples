@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package test;
+
+option go_package = "code-examples/protobuf/demo1/testpb";
+
+/**
+请求的数据格式
+ */
+message SearchRequest {
+  reserved "query", "xxx";
+  reserved 3;
+//  string query = 1;
+  int32 page_number = 2;
+//  int32 result_per_page = 3;
+}
+
+message SearchResponse {
+  int64 ID = 1;
+  string content = 2; // 返回的内容
+  enum Corpus {
+    reserved  1;
+    UNIVERSAL = 0;
+//    WEB = 1;
+    IMAGES = 2;
+  }
+  Corpus corpus = 4;
+}
+
+message TryRequest {
+  enum Action {
+    option allow_alias = true;
+    A = 0;
+    B = 1;
+    C = 1;
+  }
+  Try t = 1;
+  Action a = 2;
+}
+
+message Try {
+  string name = 1;
+  int32 age = 2;
+}

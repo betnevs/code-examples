@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+
+message SearchResp {
+  message Result {
+    string url = 1;
+    string title = 2;
+  }
+  repeated Result results = 1;
+}
+
+message SomeResp {
+  SearchResp.Result result = 1;
+}
+
+message ErrorStatus {
+  string message = 1;
+  repeated google.protobuf.Any details = 2;
+}
+
+service SearchService {
+  rpc Search(ErrorStatus) returns (SearchResp);
+}
