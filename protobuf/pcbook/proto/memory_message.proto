@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option go_package = "github.com/betNevS/code-examples/protobuf/pcbook/pb";
+
+message Memory {
+  enum Unit {
+    UNKONW = 0;
+    BIT = 1;
+    BYTE = 2;
+    KILOBYTE = 3;
+    MEGABYTE = 4;
+    GIGABYTE = 5;
+    TERABYTE = 6;
+  }
+
+  uint64 value = 1;
+  Unit unit = 2;
+}
