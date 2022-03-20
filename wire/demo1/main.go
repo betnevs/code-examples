@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"time"
+
+	"github.com/google/wire"
 )
 
 type Message string
@@ -52,6 +54,7 @@ func (e Event) Start() {
 }
 
 func main() {
+	wire.Bind()
 	e, err := InitializeEvent("aaa")
 	if err != nil {
 		fmt.Println(err)
