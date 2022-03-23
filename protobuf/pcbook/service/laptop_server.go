@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"log"
-	"time"
 
 	"github.com/pkg/errors"
 
@@ -17,11 +16,15 @@ import (
 
 type LaptopServer struct {
 	pb.UnimplementedLaptopServiceServer
-	Store LaptopStore
+	laptopStore LaptopStore
+	imageStore  ImageStore
 }
 
-func NewLaptopServer(store LaptopStore) *LaptopServer {
-	return &LaptopServer{Store: store}
+func NewLaptopServer(laptopStore LaptopStore, imageStore ImageStore) *LaptopServer {
+	return &LaptopServer{
+		laptopStore: laptopStore,
+		imageStore:  imageStore,
+	}
 }
 
 func (s *LaptopServer) CreateLaptop(ctx context.Context, req *pb.CreateLaptopRequest) (*pb.CreateLaptopResponse, error) {
@@ -41,7 +44,7 @@ func (s *LaptopServer) CreateLaptop(ctx context.Context, req *pb.CreateLaptopReq
 	}
 
 	// some heavy processing
-	time.Sleep(6 * time.Second)
+	//time.Sleep(6 * time.Second)
 	// important
 	if ctx.Err() == context.Canceled {
 		log.Println("request is canceld")
@@ -54,7 +57,7 @@ func (s *LaptopServer) CreateLaptop(ctx context.Context, req *pb.CreateLaptopReq
 	}
 
 	// save laptop to db
-	err := s.Store.Save(laptop)
+	err := s.laptopStore.Save(laptop)
 	if err != nil {
 		code := codes.Internal
 		if errors.Is(err, ErrAlreadyExists) {
@@ -66,4 +69,37 @@ func (s *LaptopServer) CreateLaptop(ctx context.Context, req *pb.CreateLaptopReq
 	log.Printf("saved laptop with id: %s", laptop.Id)
 
 	return &pb.CreateLaptopResponse{Id: laptop.Id}, nil
+}
+
+func (s *LaptopServer) SearchLaptop(req *pb.SearchLaptopRequest, stream pb.LaptopService_SearchLaptopServer) error {
+	filter := req.GetFilter()
+	log.Printf("receive a search-laptop request with filter: %v", filter)
+
+	err := s.laptopStore.Search(stream.Context(), filter, func(laptop *pb.Laptop) error {
+		res := &pb.SearchLaptopResponse{
+			Laptop: laptop,
+		}
+		err := stream.Send(res)
+		if err != nil {
+			return err
+		}
+		log.Printf("sent laptop with id: %s", laptop.GetId())
+		return nil
+	})
+	if err != nil {
+		return status.Errorf(codes.Internal, "unexpected error: %v", err)
+	}
+	return nil
+}
+
+func (s *LaptopServer) UploadImage(stream *pb.LaptopService_UploadImageServer) error {
+
+	return nil
+}
+
+func logError(err error) error {
+	if err != nil {
+		log.Println(err)
+	}
+	return err
 }

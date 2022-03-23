@@ -13,6 +13,12 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+//var kacp = keepalive.ClientParameters{
+//	Time:                10 * time.Second,
+//	Timeout:             time.Second,
+//	PermitWithoutStream: true,
+//}
+
 func main() {
 	serverAddr := flag.String("address", "", "the server address")
 	flag.Parse()
@@ -45,4 +51,35 @@ func main() {
 		return
 	}
 	log.Printf("created laptop with id: %s", res.Id)
+
+	//time.Sleep(20 * time.Second)
+
+	//log.Println("second request")
+	//
+	//res, err = laptopClient.CreateLaptop(ctx, req)
+	//if err != nil {
+	//	st, ok := status.FromError(err)
+	//	if ok && st.Code() == codes.AlreadyExists {
+	//		log.Println("laptop already exists")
+	//	} else {
+	//		log.Println("cannot create laptop: ", err)
+	//	}
+	//}
+	//log.Printf("created laptop with id: %s", res.Id)
+
+	//fmt.Println("laptop: ", res)
+	//
+	//time.Sleep(time.Second)
+	//log.Println("third request")
+	//
+	//res, err = laptopClient.CreateLaptop(ctx, req)
+	//if err != nil {
+	//	st, ok := status.FromError(err)
+	//	if ok && st.Code() == codes.AlreadyExists {
+	//		log.Println("laptop already exists")
+	//	} else {
+	//		log.Println("cannot create laptop: ", err)
+	//	}
+	//}
+	//fmt.Println("laptop: ", res)
 }

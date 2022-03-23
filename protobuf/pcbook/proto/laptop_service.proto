@@ -5,6 +5,7 @@ package techschool.pcbook;
 option go_package = "github.com/betNevS/code-examples/protobuf/pcbook/pb";
 
 import "laptop_message.proto";
+import "filter_message.proto";
 
 message CreateLaptopRequest {
   Laptop laptop = 1;
@@ -14,6 +15,33 @@ message CreateLaptopResponse {
   string id = 1;
 }
 
+message SearchLaptopRequest {
+  Filter filter = 1;
+}
+
+message SearchLaptopResponse {
+  Laptop laptop = 1;
+}
+
+message UploadImageRequest {
+  oneof data {
+    ImageInfo info = 1;
+    bytes chunk_data = 2;
+  }
+}
+
+message ImageInfo {
+  string laptop_id = 1;
+  string image_type = 2;
+}
+
+message UploadImageResponse {
+  string id = 1;
+  uint32 size = 2;
+}
+
 service LaptopService {
   rpc CreateLaptop(CreateLaptopRequest) returns (CreateLaptopResponse);
+  rpc SearchLaptop(SearchLaptopRequest) returns (stream SearchLaptopResponse);
+  rpc UploadImage(stream UploadImageRequest) returns (UploadImageResponse);
 }
