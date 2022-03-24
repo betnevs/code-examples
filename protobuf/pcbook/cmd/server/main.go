@@ -17,12 +17,13 @@ func main() {
 
 	laptopStore := service.NewInMemoryLaptopStore()
 	imageStore := service.NewDiskImageStore("img")
+	ratingStore := service.NewInMemoryRatingStore()
 
-	laptopServer := service.NewLaptopServer(laptopStore, imageStore)
+	laptopServer := service.NewLaptopServer(laptopStore, imageStore, ratingStore)
 	grpcServer := grpc.NewServer()
 	pb.RegisterLaptopServiceServer(grpcServer, laptopServer)
 
-	address := fmt.Sprintf("0.0.0.0:%d", *port)
+	address := fmt.Sprintf("127.0.0.1:%d", *port)
 	log.Println("start server address:", address)
 	listener, err := net.Listen("tcp", address)
 	if err != nil {

@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
 )
 
 const (
@@ -55,6 +57,9 @@ func test(c color) {
 }
 
 func main() {
+	log.Println("aaa: ", "aaaa")
+	fmt.Println("aaa:", "aaaa")
+	os.Exit(1)
 	fmt.Println(x, y, z)
 	fmt.Println(KB, MB, GB, xx)
 	fmt.Println(a, b, c, d, xd1, xd2, xd3, bf)

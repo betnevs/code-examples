@@ -9,13 +9,8 @@ import (
 	"github.com/betNevS/code-examples/tcp/base/proto"
 )
 
-type Person struct {
-	name string
-	age  int
-}
-
 func main() {
-	lis, err := net.Listen("tcp", ":8999")
+	lis, err := net.Listen("tcp", ":9090")
 	if err != nil {
 		fmt.Println("listen err:", err)
 		return

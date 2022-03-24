@@ -9,5 +9,5 @@ import (
 
 func TestProbufToJson(t *testing.T) {
 	laptop := sample.NewLaptop()
-	fmt.Println(ProbufToJson(laptop))
+	fmt.Println(ProtobufToJson(laptop))
 }

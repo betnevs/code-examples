@@ -1,9 +1,13 @@
 package service
 
 import (
+	"bufio"
 	"context"
+	"fmt"
 	"io"
 	"net"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/betNevS/code-examples/protobuf/pcbook/serializer"
@@ -20,7 +24,7 @@ func TestClientCreateLaptop(t *testing.T) {
 
 	laptopStore := NewInMemoryLaptopStore()
 
-	serverAddress := startTestLaptopServer(t, laptopStore, nil)
+	serverAddress := startTestLaptopServer(t, laptopStore, nil, nil)
 	laptopClient := startTestLaptopClient(t, serverAddress)
 
 	laptop := sample.NewLaptop()
@@ -97,7 +101,7 @@ func TestClientSearchLaptop(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	serverAddress := startTestLaptopServer(t, store, nil)
+	serverAddress := startTestLaptopServer(t, store, nil, nil)
 	laptopClient := startTestLaptopClient(t, serverAddress)
 
 	req := &pb.SearchLaptopRequest{Filter: filter}
@@ -118,10 +122,10 @@ func TestClientSearchLaptop(t *testing.T) {
 }
 
 func requireSameLaptop(t *testing.T, laptop *pb.Laptop, other *pb.Laptop) {
-	json1, err := serializer.ProbufToJson(laptop)
+	json1, err := serializer.ProtobufToJson(laptop)
 	require.NoError(t, err)
 
-	json2, err := serializer.ProbufToJson(other)
+	json2, err := serializer.ProtobufToJson(other)
 	require.NoError(t, err)
 
 	require.Equal(t, json1, json2)
@@ -134,8 +138,8 @@ func startTestLaptopClient(t *testing.T, address string) pb.LaptopServiceClient 
 	return pb.NewLaptopServiceClient(conn)
 }
 
-func startTestLaptopServer(t *testing.T, laptopStore LaptopStore, imageStore ImageStore) string {
-	laptopServer := NewLaptopServer(laptopStore, imageStore)
+func startTestLaptopServer(t *testing.T, laptopStore LaptopStore, imageStore ImageStore, ratingStore RatingStore) string {
+	laptopServer := NewLaptopServer(laptopStore, imageStore, ratingStore)
 
 	grpcServer := grpc.NewServer()
 	pb.RegisterLaptopServiceServer(grpcServer, laptopServer)
@@ -146,4 +150,121 @@ func startTestLaptopServer(t *testing.T, laptopStore LaptopStore, imageStore Ima
 	go grpcServer.Serve(listener)
 
 	return listener.Addr().String()
+}
+
+func TestClientUploadImage(t *testing.T) {
+	t.Parallel()
+
+	testImageFolder := "../tmp"
+
+	laptopStore := NewInMemoryLaptopStore()
+	imageStore := NewDiskImageStore(testImageFolder)
+
+	laptop := sample.NewLaptop()
+	err := laptopStore.Save(laptop)
+	require.NoError(t, err)
+
+	serverAddr := startTestLaptopServer(t, laptopStore, imageStore, nil)
+	laptopClient := startTestLaptopClient(t, serverAddr)
+
+	imagePath := fmt.Sprintf("%s/yj1.jpeg", testImageFolder)
+	file, err := os.Open(imagePath)
+	require.NoError(t, err)
+	defer file.Close()
+
+	stream, err := laptopClient.UploadImage(context.Background())
+	require.NoError(t, err)
+
+	imageType := filepath.Ext(imagePath)
+	req := &pb.UploadImageRequest{
+		Data: &pb.UploadImageRequest_Info{
+			Info: &pb.ImageInfo{
+				LaptopId:  laptop.GetId(),
+				ImageType: imageType,
+			},
+		},
+	}
+
+	err = stream.Send(req)
+	require.NoError(t, err)
+
+	reader := bufio.NewReader(file)
+	buffer := make([]byte, 1024)
+
+	size := 0
+
+	for {
+		n, err := reader.Read(buffer)
+		if err == io.EOF {
+			break
+		}
+		require.NoError(t, err)
+		size += n
+
+		req := &pb.UploadImageRequest{
+			Data: &pb.UploadImageRequest_ChunkData{
+				ChunkData: buffer[:n],
+			},
+		}
+
+		err = stream.Send(req)
+		require.NoError(t, err)
+	}
+
+	res, err := stream.CloseAndRecv()
+	require.NoError(t, err)
+	require.NotZero(t, res.GetId())
+	require.EqualValues(t, size, res.GetSize())
+
+	savedImagePath := fmt.Sprintf("%s/%s%s", testImageFolder, res.GetId(), imageType)
+	require.FileExists(t, savedImagePath)
+	require.NoError(t, os.Remove(savedImagePath))
+}
+
+func TestClientRateLaptop(t *testing.T) {
+	t.Parallel()
+
+	laptopStore := NewInMemoryLaptopStore()
+	ratingStore := NewInMemoryRatingStore()
+
+	laptop := sample.NewLaptop()
+	err := laptopStore.Save(laptop)
+	require.NoError(t, err)
+
+	serverAddr := startTestLaptopServer(t, laptopStore, nil, ratingStore)
+	laptopClient := startTestLaptopClient(t, serverAddr)
+
+	stream, err := laptopClient.RateLaptop(context.Background())
+	require.NoError(t, err)
+
+	scores := []float64{8, 7.5, 10}
+	averages := []float64{8, 7.75, 8.5}
+
+	n := len(scores)
+
+	for i := 0; i < n; i++ {
+		req := &pb.RateLaptopRequest{
+			LaptopId: laptop.GetId(),
+			Score:    scores[i],
+		}
+		err := stream.Send(req)
+		require.NoError(t, err)
+	}
+
+	err = stream.CloseSend()
+	require.NoError(t, err)
+
+	for idx := 0; ; idx++ {
+		res, err := stream.Recv()
+		if err == io.EOF {
+			require.Equal(t, n, idx)
+			return
+		}
+
+		require.NoError(t, err)
+		require.Equal(t, laptop.GetId(), res.GetLaptopId())
+		require.Equal(t, uint32(idx+1), res.GetRatedCount())
+		require.Equal(t, averages[idx], res.GetAverageScore())
+	}
+
 }

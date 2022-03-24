@@ -31,26 +31,24 @@ func main() {
 
 	laptopClient := pb.NewLaptopServiceClient(conn)
 
-	laptop := sample.NewLaptop()
-	laptop.Id = "9f3d84d5-8929-455b-9461-f130a277fe5b"
-	req := &pb.CreateLaptopRequest{
-		Laptop: laptop,
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	res, err := laptopClient.CreateLaptop(ctx, req)
-	if err != nil {
-		st, ok := status.FromError(err)
-		if ok && st.Code() == codes.AlreadyExists {
-			log.Println("laptop already exists")
-		} else {
-			log.Fatal("cannot create laptop: ", err)
+	for {
+		laptop := sample.NewLaptop()
+		req := &pb.CreateLaptopRequest{
+			Laptop: laptop,
 		}
-		return
+		res, err := laptopClient.CreateLaptop(context.Background(), req)
+		if err != nil {
+			st, ok := status.FromError(err)
+			if ok && st.Code() == codes.AlreadyExists {
+				log.Println("laptop already exists")
+			} else {
+				log.Println("cannot create laptop: ", err)
+			}
+		}
+
+		log.Printf("created laptop with id: %v", res)
+		time.Sleep(time.Second)
 	}
-	log.Printf("created laptop with id: %s", res.Id)
 
 	//time.Sleep(20 * time.Second)
 
