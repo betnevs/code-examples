@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net"
+	"syscall"
 	"time"
 )
 
@@ -15,6 +16,7 @@ func main() {
 	}
 	conn.Close()
 	log.Println("close ok")
+	syscall.SetsockoptInt()
 	var buf = make([]byte, 32)
 	n, err := conn.Read(buf)
 	if err != nil {

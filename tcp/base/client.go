@@ -1,28 +1,26 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"net"
-	"time"
-
-	"github.com/betNevS/code-examples/tcp/base/proto"
 )
 
 func main() {
-	conn, err := net.Dial("tcp", ":8999")
+	conn, err := net.Dial("tcp", ":8080")
 	if err != nil {
 		fmt.Println("dial failed, err:", err)
 		return
 	}
+	reader := bufio.NewReader(conn)
+	b := make([]byte, 512)
 	defer conn.Close()
-	for i := 0; i < 100000; i++ {
-		msg := `hello, hello, hello`
-		data, err := proto.Encode(msg)
+	for {
+		n, err := reader.Read(b)
 		if err != nil {
-			fmt.Println("encode msg, err:", err)
-			return
+			fmt.Println("read err: ", err)
+			break
 		}
-		conn.Write(data)
-		time.Sleep(time.Second)
+		fmt.Println("receive: ", string(b[:n]))
 	}
 }

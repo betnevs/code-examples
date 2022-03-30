@@ -135,10 +135,10 @@ func (laptopClient *LaptopClient) CreateLaptop(laptop *pb.Laptop) {
 		if ok && st.Code() == codes.AlreadyExists {
 			log.Println("laptop already exists")
 		} else {
-			log.Fatal("cannot create laptop: ", err)
+			log.Println("cannot create laptop: ", err)
 		}
 	}
-	log.Printf("created laptop with id: %v", res.Id)
+	log.Printf("created laptop with id: %v", res)
 }
 
 func (laptopClient *LaptopClient) RateLaptop(laptopIDs []string, scores []float64) error {

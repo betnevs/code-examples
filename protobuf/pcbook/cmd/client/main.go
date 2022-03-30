@@ -1,42 +1,86 @@
 package main
 
 import (
-	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"flag"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"time"
 
-	"github.com/betNevS/code-examples/protobuf/pcbook/pb"
+	"github.com/betNevS/code-examples/protobuf/pcbook/client"
+	"google.golang.org/grpc/credentials"
+
 	"github.com/betNevS/code-examples/protobuf/pcbook/sample"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-//var kacp = keepalive.ClientParameters{
-//	Time:                10 * time.Second,
-//	Timeout:             time.Second,
-//	PermitWithoutStream: true,
-//}
+const (
+	username        = "admin1"
+	password        = "123"
+	refreshDuration = 30 * time.Second
+)
+
+func loadTLSCredentials() (credentials.TransportCredentials, error) {
+	pemServerCA, err := ioutil.ReadFile("cert/ca-cert.pem")
+	if err != nil {
+		return nil, err
+	}
+	certPool := x509.NewCertPool()
+	if !certPool.AppendCertsFromPEM(pemServerCA) {
+		return nil, fmt.Errorf("failed to add server'CA certificate")
+	}
+	config := &tls.Config{
+		RootCAs: certPool,
+	}
+	return credentials.NewTLS(config), nil
+}
 
 func main() {
 	serverAddr := flag.String("address", "", "the server address")
+	enableTLS := flag.Bool("tls", false, "enable TLS/SSL")
+
 	flag.Parse()
 	log.Printf("dial server %s", *serverAddr)
 
-	conn, err := grpc.Dial(*serverAddr, grpc.WithInsecure())
-	if err != nil {
-		log.Fatal("cannot dail server: ", err)
+	transportOption := grpc.WithInsecure()
+
+	if *enableTLS {
+		tlsCredentials, err := loadTLSCredentials()
+		if err != nil {
+			log.Fatal("cannot load TLS credentials: ", err)
+		}
+		transportOption = grpc.WithTransportCredentials(tlsCredentials)
 	}
 
-	laptopClient := pb.NewLaptopServiceClient(conn)
+	cc1, err := grpc.Dial(*serverAddr, transportOption)
+	if err != nil {
+		log.Fatal("cannot dial server: ", err)
+	}
+	authClient := client.NewAuthClient(cc1, username, password)
+	interceptor, err := client.NewAuthInterceptor(authClient, authMethod(), refreshDuration)
+	if err != nil {
+		log.Fatal("cannot create auth interceptor: ", err)
+	}
+
+	cc2, err := grpc.Dial(
+		*serverAddr,
+		transportOption,
+		grpc.WithUnaryInterceptor(interceptor.Unary()),
+		grpc.WithStreamInterceptor(interceptor.Stream()),
+	)
+	if err != nil {
+		log.Fatal("cannot dial server: ", err)
+	}
+
+	laptopClient := client.NewLaptopClient(cc2)
 
 	for {
 		laptop := sample.NewLaptop()
-		req := &pb.CreateLaptopRequest{
-			Laptop: laptop,
-		}
-		res, err := laptopClient.CreateLaptop(context.Background(), req)
+		laptopClient.CreateLaptop(laptop)
 		if err != nil {
 			st, ok := status.FromError(err)
 			if ok && st.Code() == codes.AlreadyExists {
@@ -45,39 +89,15 @@ func main() {
 				log.Println("cannot create laptop: ", err)
 			}
 		}
-
-		log.Printf("created laptop with id: %v", res)
 		time.Sleep(time.Second)
 	}
+}
 
-	//time.Sleep(20 * time.Second)
-
-	//log.Println("second request")
-	//
-	//res, err = laptopClient.CreateLaptop(ctx, req)
-	//if err != nil {
-	//	st, ok := status.FromError(err)
-	//	if ok && st.Code() == codes.AlreadyExists {
-	//		log.Println("laptop already exists")
-	//	} else {
-	//		log.Println("cannot create laptop: ", err)
-	//	}
-	//}
-	//log.Printf("created laptop with id: %s", res.Id)
-
-	//fmt.Println("laptop: ", res)
-	//
-	//time.Sleep(time.Second)
-	//log.Println("third request")
-	//
-	//res, err = laptopClient.CreateLaptop(ctx, req)
-	//if err != nil {
-	//	st, ok := status.FromError(err)
-	//	if ok && st.Code() == codes.AlreadyExists {
-	//		log.Println("laptop already exists")
-	//	} else {
-	//		log.Println("cannot create laptop: ", err)
-	//	}
-	//}
-	//fmt.Println("laptop: ", res)
+func authMethod() map[string]bool {
+	const laptopServicePath = "/techschool.pcbook.LaptopService/"
+	return map[string]bool{
+		laptopServicePath + "CreateLaptop": true,
+		laptopServicePath + "UploadImage":  true,
+		laptopServicePath + "RateLaptop":   true,
+	}
 }
