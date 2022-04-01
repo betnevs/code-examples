@@ -1,0 +1,7 @@
+version: 1
+packages:
+  - path: "tutorial"
+    name: "tutorial"
+    engine: "mysql"
+    schema: "schema.sql"
+    queries: "query.sql"
