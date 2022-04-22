@@ -1,2 +1,2 @@
 # code-examples
-code examples for learnning
+code examples for learning
