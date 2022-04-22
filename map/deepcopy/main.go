@@ -8,6 +8,8 @@ import (
 )
 
 func main() {
+	var err error
+	fmt.Println(err)
 	src := map[string]interface{}{
 		"aa": 1,
 		"bb": "ccc",
