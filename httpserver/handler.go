@@ -1,5 +1,7 @@
 package main
 
+type handlerFunc func(c *Context)
+
 type Handler interface {
 	ServeHTTP(c *Context)
 	Router
