@@ -9,6 +9,7 @@ func case2_1() int {
 	println("eval case2_1 expr")
 	return 0
 }
+
 func case2_2() int {
 	println("eval case2_2 expr")
 	return 2

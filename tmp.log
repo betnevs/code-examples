@@ -1,0 +1,16 @@
+g[00001]:    ->main.A1
+g[00001]:        ->main.B1
+g[00018]:    ->main.A2
+g[00001]:            ->main.C1
+g[00001]:                ->main.D
+g[00001]:                <-main.D
+g[00001]:            <-main.C1
+g[00001]:        <-main.B1
+g[00018]:        ->main.B2
+g[00018]:            ->main.C2
+g[00018]:                ->main.D
+g[00018]:                <-main.D
+g[00018]:            <-main.C2
+g[00001]:    <-main.A1
+g[00018]:        <-main.B2
+g[00018]:    <-main.A2

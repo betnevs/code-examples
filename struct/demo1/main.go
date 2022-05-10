@@ -1,7 +1,5 @@
 package main
 
-import "fmt"
-
 type Sayer interface {
 	Say() string
 }
@@ -26,14 +24,20 @@ func (p *People) Walk() string {
 	return "walk"
 }
 
+type pp2 struct {
+	Sayer
+}
+
 func main() {
 
-	s := &People{}
-	fmt.Println(s.Walk())
-	fmt.Println(s.Say())
+	//s := &People{}
+	//fmt.Println(s.Walk())
+	//fmt.Println(s.Say())
 	//d := &People{}
 	//d.Sayer = &pp{}
 	//fmt.Println(d.Say())
 	//fmt.Println(d.Sayer.Say())
 
+	pp := &pp2{}
+	pp.Say()
 }
