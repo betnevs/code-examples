@@ -30,15 +30,12 @@ func (d *Dog) Speak() string {
 func main() {
 	d := Dog{
 		Gender: "male",
+		Animal: Animal{
+			name: "bbo",
+		},
 	}
 
 	fmt.Println(d.Name())
 	fmt.Println(d.Speak())
 	d.Play()
-
-	a := &Animal{}
-	b := *a
-	fmt.Println(a, b)
-	fmt.Printf("%p, %p\n", a, &b)
-
 }
