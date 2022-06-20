@@ -1,5 +1,28 @@
 package main
 
+import (
+	"fmt"
+
+	"github.com/mitchellh/mapstructure"
+)
+
+type Person struct {
+	Name   string
+	Age    int
+	Emails []string
+}
+
 func main() {
-	$END$
+	m := map[string]interface{}{
+		"name":   123,
+		"age":    "bad value",
+		"emails": []int{1, 2, 3},
+	}
+
+	var p Person
+	err := mapstructure.WeakDecode(m, &p)
+	fmt.Println(p)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 }

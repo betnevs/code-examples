@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"path"
+)
 
 type myint int
 
@@ -19,4 +22,9 @@ func main() {
 	arr := [10]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	sl := arr[3:7:10]
 	fmt.Println(sl)
+
+	absolutePath := "cc"
+	relativePath := "aa"
+	finalPath := path.Join(absolutePath, relativePath)
+	fmt.Println(absolutePath, relativePath, finalPath)
 }

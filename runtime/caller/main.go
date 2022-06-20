@@ -12,15 +12,7 @@ func Foo() {
 
 func Bar() {
 	fmt.Printf("i am %s, %s call me\n", printMyName(), printCallerName())
-	trace()
-
-	fmt.Println("_______________")
-
 	trace2()
-
-	fmt.Println("0-----------------")
-
-	DumpStacks()
 }
 
 func printMyName() string {
@@ -29,7 +21,7 @@ func printMyName() string {
 }
 
 func printCallerName() string {
-	pc, _, _, _ := runtime.Caller(2)
+	pc, _, _, _ := runtime.Caller(1)
 	return runtime.FuncForPC(pc).Name()
 }
 
