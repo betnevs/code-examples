@@ -7,16 +7,16 @@ import (
 )
 
 type User struct {
-	Name    string `json:"name"`
-	Age     int    `json:"age"`
-	Address string `json:"address"`
+	Name    string  `json:"name"`
+	Age     float64 `json:"age"`
+	Address string  `json:"address"`
 }
 
 func main() {
 	fmt.Println("marshal......")
 	u := User{
 		Name:    "yangjie",
-		Age:     18,
+		Age:     11,
 		Address: "hahahah",
 	}
 	result, err := json.Marshal(u)
@@ -28,6 +28,7 @@ func main() {
 	raw := `{"NaMe":"yangjie111","age":19,"addresS":"hahahah"}`
 	u1 := User{}
 	err = json.Unmarshal([]byte(raw), &u1)
+	fmt.Printf("%T\n", u1.Age)
 	if err != nil {
 		log.Fatal(err)
 	}

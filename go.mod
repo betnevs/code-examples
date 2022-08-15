@@ -3,7 +3,11 @@ module github.com/betNevS/code-examples
 go 1.16
 
 require (
+	github.com/bndr/gojenkins v1.1.0 // indirect
+	github.com/census-instrumentation/opencensus-proto v0.3.0 // indirect
+	github.com/cncf/xds/go v0.0.0-20211130200136-a8f946100490 // indirect
 	github.com/confluentinc/confluent-kafka-go v1.8.2 // indirect
+	github.com/envoyproxy/protoc-gen-validate v0.6.2 // indirect
 	github.com/gin-contrib/gzip v0.0.5 // indirect
 	github.com/gin-gonic/gin v1.8.0
 	github.com/go-playground/validator/v10 v10.11.0 // indirect
@@ -26,7 +30,7 @@ require (
 	github.com/panjf2000/gnet v1.5.3
 	github.com/pkg/errors v0.9.1
 	github.com/segmentio/kafka-go v0.4.31 // indirect
-	github.com/spf13/cobra v1.3.0
+	github.com/spf13/cobra v1.4.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.12.0
 	github.com/stretchr/testify v1.7.1
